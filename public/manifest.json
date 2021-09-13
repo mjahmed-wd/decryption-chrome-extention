@@ -1,7 +1,7 @@
 {
   "name": "SME - Decryption",
   "description": "SME decryption tool © Jubair",
-  "version": "0.01",
+  "version": "0.2",
   "manifest_version": 3,
   "permissions": [
     "storage"

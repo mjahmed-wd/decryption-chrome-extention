@@ -3,6 +3,7 @@ import { Formik, Form, Field } from "formik";
 import { ToastContainer, toast } from "react-toastify";
 import homeIcon from "./image/homeIcon.png";
 import { useHistory } from "react-router-dom";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 const initData = {
   key: localStorage.getItem("key") || "",
@@ -14,19 +15,26 @@ const SettingPage = () => {
 
   return (
     <div className="mt-3 mb-3">
-      <img
-        src={homeIcon}
-        alt=""
-        srcSet=""
-        style={{ width: "15px" }}
-        onClick={() => history.push("/")}
-      />
+      <OverlayTrigger
+        key="right"
+        placement="right"
+        overlay={<Tooltip id="tooltip-right">Home Page.</Tooltip>}
+      >
+        <img
+          src={homeIcon}
+          alt=""
+          srcSet=""
+          style={{ width: "25px" }}
+          onClick={() => history.push("/")}
+        />
+      </OverlayTrigger>
 
       <Formik
         initialValues={initData}
         onSubmit={(values, { setSubmitting, resetForm }) => {
           localStorage.setItem("key", values?.key);
           localStorage.setItem("iv", values?.iv);
+          toast.success("Key saved locally")
         }}
       >
         {({ values, isSubmitting }) => (

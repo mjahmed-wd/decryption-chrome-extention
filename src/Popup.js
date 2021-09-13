@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactJson from "react-json-view";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Formik, Form, Field } from "formik";
 import { ToastContainer, toast } from "react-toastify";
 import gearIcon from "./image/favpng_gear.png";
+import deleteIcon from "./image/delete.png";
 import { useHistory } from "react-router-dom";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 const CryptoJS = require("crypto-js");
 
@@ -32,26 +34,63 @@ const Popup = () => {
   const [data, setData] = useState(JSON.parse(localStorageData) || "");
   const [urlData, setUrlData] = useState(localStorageUrl || "");
 
+  const credentials = [localStorage.getItem("key"), localStorage.getItem("iv")];
+  const checkCredentials = credentials.every(
+    (item) => typeof item === "string" && item !== ""
+  );
+  if (!checkCredentials) {
+    toast.warn("Please enter your Secret Key and  Initialization Vector");
+    history.push("/setting");
+  }
+  const [deleteButtonStatus, setDeleteButtonStatus] = useState(false);
+
+  useEffect(() => {
+    if (urlData === "" && data === "") {
+      setDeleteButtonStatus(false);
+    } else {
+      setDeleteButtonStatus(true);
+    }
+  }, [urlData, data]);
+
   return (
     <div className="mt-3 mb-3">
-      {key === "" && iv === "" && (
-        <>
-          {() => {
-            toast.warn(
-              "Please enter your Secret Key and  Initialization Vector"
-            );
-            history.push("/setting");
-          }}
-        </>
-      )}
       <div className="w-100 d-flex justify-content-between">
-        <img
-          src={gearIcon}
-          alt=""
-          srcSet=""
-          style={{ width: "15px" }}
-          onClick={() => history.push("/setting")}
-        />
+        <OverlayTrigger
+          key="right"
+          placement="right"
+          overlay={<Tooltip id={`tooltip-right`}>Settings Page.</Tooltip>}
+        >
+          <img
+            src={gearIcon}
+            alt=""
+            srcSet=""
+            style={{ width: "25px" }}
+            onClick={() => history.push("/setting")}
+          />
+        </OverlayTrigger>
+
+        {deleteButtonStatus && (
+          <OverlayTrigger
+            key="left"
+            placement="left"
+            overlay={<Tooltip id={`tooltip-bottom`}>Clear Data.</Tooltip>}
+          >
+            <img
+              src={deleteIcon}
+              alt=""
+              srcSet=""
+              style={{ width: "25px" }}
+              className={deleteButtonStatus ? "" : "d-none"}
+              onClick={() => {
+                localStorage.removeItem("url");
+                setUrlData("");
+                localStorage.removeItem("data");
+                setData("");
+                toast.success("Cleared from storage");
+              }}
+            />
+          </OverlayTrigger>
+        )}
       </div>
 
       <Formik
@@ -87,7 +126,7 @@ const Popup = () => {
               setUrlData(decoded);
               localStorage.setItem("url", decoded);
             }
-            resetForm(initData); 
+            resetForm(initData);
           }
         }}
       >
